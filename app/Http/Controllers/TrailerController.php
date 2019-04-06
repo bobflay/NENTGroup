@@ -60,7 +60,11 @@ class TrailerController extends Controller
 	}
 
 
-
+	/**
+	 * Retrieve imdb id from viaplay movie resource
+	 * Argument: viaplay movie resource object
+	 * Response: string (imdb_id)
+	 */
 	public function getIMDBId($movie_resource)
 	{
 		$content = $movie_resource->_embedded;
@@ -80,7 +84,11 @@ class TrailerController extends Controller
 		return $id;
 	}
 
-
+	/**
+	 * Get TheMovieDB id from imdb id
+	 * Argument: String (imdb_id)
+	 * Response: string (the movie db id)
+	 */
 	public function getMovieDBId($imdb_id)
 	{
 		$request = [
@@ -96,6 +104,12 @@ class TrailerController extends Controller
 		return $id;
 	}
 
+
+	/**
+	 * Retrieve youtube id from the movie db id
+	 * Argument: (String) the movie db id
+	 * Response: (string) Youtube Key
+	 */
 	public function getYoutubeId($moviedb_id)
 	{
 		$request = [
@@ -113,6 +127,11 @@ class TrailerController extends Controller
 	}
 
 
+	/**
+	 * Fromat Youtube URL
+	 * Argument: (string) Youtube Id
+	 * Response: (string) Youtube URL
+	 */
 	public function formatYoutubeURL($id)
 	{
 		return 'https://www.youtube.com/watch?v='.$id;
