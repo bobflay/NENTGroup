@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 
-Route::post('/trailer','TrailerController@index');
+Route::get('/trailer','TrailerController@index');
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
