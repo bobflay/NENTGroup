@@ -19,11 +19,12 @@ class TrailerController extends Controller
 		{
 			//if the url is not set in Redis;
 			//get the url structure
-			$url_structure = HttpClient::get($url)->json();
-			if($url_structure->response = 5100)
+			$response = HttpClient::get($url)->json();
+
+			if(isset($response->code) && $response->code = 5100)
 			{
-				$prefix = $url_structure->redirectPath;
-				$url = $url_structure->url;
+				$prefix = $response->redirectPath;
+				$url = $response->url;
 				//get the movie name from the url
 				$url = explode("$prefix/", $url);
 				//make sure that the movie name was extracted properly
@@ -36,13 +37,20 @@ class TrailerController extends Controller
 					$request = env('VIAPLAY_API').'/pcdash-se/store/'.$movie_name.'?partial=true';
 					$movie_resource = HttpClient::get($request)->json();
 					$imdb_id =  $this->getIMDBId($movie_resource);
-					$moviedb_id = $this->getMovieDBId($imdb_id);
-					$youtube_id = $this->getYoutubeId($moviedb_id);
-					$trailer_url = $this->formatYoutubeURL($youtube_id);
-					Redis::set('trailer:'.request()->url,$trailer_url);
+					
 				}
 
+			}else{
+
+				$imdb_id = $this->getIMDBId($response);
 			}
+
+			$moviedb_id = $this->getMovieDBId($imdb_id);
+			$youtube_id = $this->getYoutubeId($moviedb_id);
+			$trailer_url = $this->formatYoutubeURL($youtube_id);
+			Redis::set('trailer:'.request()->url,$trailer_url);
+
+
 
 		}
 
@@ -55,10 +63,19 @@ class TrailerController extends Controller
 
 	public function getIMDBId($movie_resource)
 	{
-
 		$content = $movie_resource->_embedded;
 		$content = get_object_vars($content);
-		$viaplay_product=$content['viaplay:product']->content;
+		if(isset($content['viaplay:product']))
+		{
+			$viaplay_product=$content['viaplay:product']->content;
+		}elseif(isset($content['viaplay:blocks']))
+		{
+			$blocks = collect($content['viaplay:blocks']);
+			$block = $blocks->where('type','product')->first();
+			$embedded = $block->_embedded;
+			$embedded = get_object_vars($embedded);
+			$viaplay_product=$embedded['viaplay:product']->content;
+		}
 		$id = $viaplay_product->imdb->id;
 		return $id;
 	}
