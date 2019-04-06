@@ -1,71 +1,68 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+# NENT Trailer Fetcher
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+This is a simple Laravel project created as  test project for a backend-developer.
+To run this project you need
+### Installation
+  - Running PHP evironment, preferably version 7.1 (use WAMP or LAMP)
+  - Composer: [download-here]
+  - Redis: In memory database [download-redis]
+  - Valid Movie DB API Key: [moviedb-api]
 
-## About Laravel
+```sh
+$ git clone https://github.com/bobflay/NENTGroup.git
+$ cd NENTGroup
+$ composer install
+$ php artisan run serve
+```
+if everything run successfully you should receive a message saying that the project is running on the port 8000 by defaut;
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```sh
+Laravel development server started: <http://127.0.0.1:8000>
+```
+### Requests
+This project one sample request which is a **GET** request to the following Route: **Base_url +"/api/trailer?"url=_{movie_resource_url_from_viaplay}_**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Request URL | Youtube URL |
+| ------ | ------ |
+| http://localhost:8000/api/trailer?url=https://content.viaplay.se/pc-se/film/a-star-is-born-2018| https://www.youtube.com/watch?v=nSbzyEJ8X9E|
+| http://localhost:8000/api/trailer?url=https://content.viaplay.se/pc-se/film/avatar-2009| https://www.youtube.com/watch?v=5PSNL1qE6VY |
+| http://localhost:8000/api/trailer?url=https://content.viaplay.se/pc-se/film/titanic-1997 | https://www.youtube.com/watch?v=CHekzSiZjrY |
+| http://localhost:8000/api/trailer?url=https://content.viaplay.se/pc-se/film/mad-max-fury-road-2015| https://www.youtube.com/watch?v=akX3Is3qBpw |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+### Development
+Platform: I decided to work with Laravel, since I have a lot of experience with Laravel
+**Target: create REST API for providing client with Trailer URL**
+Movie Resource Link as Input: https://content.viaplay.se/pc-se/film/arrival-2016 
+**Return Trailer as output**
+Within the movie resource, the IMDb information can be found at the following path:
+_embedded[“viaplay:blocks”][0]._embedded[“viaplay:product”].content.imdb
+Using the get rquest of the provided link doesn't return  with a movie resource!
+The output of the GET request of  https://content.viaplay.se/pc-se/film/arrival-2016
+```json
+{
+    "code": 5100,
+    "redirectPath": "/pc-se/film",
+    "url": "/pc-se/film/arrival-2016"
+}
+```
+- I decided to use **"https://content.viaplay.se/pcdash-se/store/_{PublicPath}_?partial=true"** to get movie resource instead.
+After getting the movie resource I extracted the IMDB id;
+- I called THE MOVIE DB API to get the movie id from IMDB id:
+https://api.themoviedb.org/3/find/{external_id}?api_key=<<api_key>>&language=en-US&external_source=imdb_id
+- I called the Movie DB API to get the trailler using themoviedb id:
+https://api.themoviedb.org/3/movie/603/videos?api_key=cf59e3834d8b8ef500ff73aa09dec848&language=en-US
+- After getting Youtube key, I store the viaplay movie resource url with youtube url in Redis for faster retrieval for the next call.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Todos
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost you and your team's skills by digging into our comprehensive video library.
+ - Write MORE Tests
+ - Support trailer for series
+ - shorten the response for the first time api call
 
-## Laravel Sponsors
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
+   [download-redis]: <https://redis.io/download>
+   [moviedb-api]: <https://www.themoviedb.org/documentation/api>
+   [download-here]: <https://getcomposer.org/download/>
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
